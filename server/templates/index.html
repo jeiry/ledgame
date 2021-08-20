@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <div>
+        <hr/>
+    </div>
+    <button v-on:click="sent">开始游戏</button>
+    <div>
+        <hr/>
+        <h3>接收到的信息：</h3>
+        <div class="message">
+            <li v-for="item in temp_msg" :key="item">
+    << item >>
+  </li></div>
+    </div>
+</div>
+
+</body>
+<script>
+    var vm = new Vue({
+        delimiters: ["<<", ">>"],
+        el: '#app',
+        data: {
+            runtime: 10,
+            message: [],
+            temp_msg:[]
+        },
+        mounted() {
+            setInterval(() => {
+                this.check()
+            }, 1000);
+        },
+        methods: {
+            sent: function () {
+                let url = ''
+                axios
+                    .get('/ajax', {
+                        params: {
+                            runtime: this.runtime
+                        }
+                    })
+                    .then(response => {
+                        console.log(response)
+                        alert('发送成功')
+                    })
+
+            },
+            check: function () {
+                axios
+                    .get('/message', {})
+                    .then(response => {
+
+                        if (response.data.message != null) {
+                            console.log(response.data.message)
+                            this.message.push(this.getCurrentTime() + ':' + response.data.message)
+                            this.temp_msg = this.message.reverse()
+                        }
+                    })
+            },
+            getCurrentTime() {
+                //获取当前时间并打印
+                var _this = this;
+                let yy = new Date().getFullYear();
+                let mm = new Date().getMonth() + 1;
+                let dd = new Date().getDate();
+                let hh = new Date().getHours();
+                let mf = new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes();
+                let ss = new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds();
+                _this.gettime = yy + '/' + mm + '/' + dd + ' ' + hh + ':' + mf + ':' + ss;
+                return _this.gettime
+            }
+        }
+    })
+</script>
+</html>
